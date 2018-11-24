@@ -606,15 +606,15 @@ class ConfigurationGetter(object):
     def getConfiguration(self):
         self._prepareArgParser()
         args = self._argparser.parse_args()
-        if args.port is None:
-            args.port = constants.DEFAULT_PORT
+        if not args.endpoint:
+            args.endpoint = ['tcp:%d' % constants.DEFAULT_PORT]
         return args
 
     def _prepareArgParser(self):
         self._argparser = argparse.ArgumentParser(
             description=getMessage("server-argument-description"),
             epilog=getMessage("server-argument-epilog"))
-        self._argparser.add_argument('--port', metavar='port', type=str, nargs='?', help=getMessage("server-port-argument"))
+        self._argparser.add_argument('--endpoint', metavar='endpoint', action='append', help="Server endpoint")
         self._argparser.add_argument('--password', metavar='password', type=str, nargs='?', help=getMessage("server-password-argument"))
         self._argparser.add_argument('--isolate-rooms', action='store_true', help=getMessage("server-isolate-room-argument"))
         self._argparser.add_argument('--disable-ready', action='store_true', help=getMessage("server-disable-ready-argument"))
