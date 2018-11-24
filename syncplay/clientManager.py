@@ -1,3 +1,4 @@
+from twisted.internet.endpoints import clientFromString, HostnameEndpoint
 
 from syncplay import ui
 from syncplay.messages import getMessage
@@ -12,6 +13,11 @@ class SyncplayClientManager(object):
         syncplayClient = SyncplayClient(config["playerClass"], interface, config)
         if syncplayClient:
             interface.addClient(syncplayClient)
-            syncplayClient.start(config['host'], config['port'])
+            from twisted.internet import reactor
+            if config['endpoint']:
+                endpoint = clientFromString(reactor, config['endpoint'])
+            else:
+                endpoint = HostnameEndpoint(reactor, config['host'], config['port'])
+            syncplayClient.start(endpoint)
         else:
             interface.showErrorMessage(getMessage("unable-to-start-client-error"), True)

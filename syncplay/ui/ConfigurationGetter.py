@@ -21,6 +21,7 @@ class InvalidConfigValue(Exception):
 class ConfigurationGetter(object):
     def __init__(self):
         self._config = {
+            "endpoint": None,
             "host": None,
             "port": constants.DEFAULT_PORT,
             "name": None,
@@ -282,13 +283,14 @@ class ConfigurationGetter(object):
                 if playerPathErrors:
                     raise InvalidConfigValue(playerPathErrors)
             elif key == "host":
-                self._config["host"], self._config["port"] = self._splitPortAndHost(self._config["host"])
-                hostNotValid = (self._config["host"] == "" or self._config["host"] is None)
-                portNotValid = (_isPortValid(self._config["port"]) == False)
-                if hostNotValid:
-                    raise InvalidConfigValue(getMessage("no-hostname-config-error"))
-                elif portNotValid:
-                    raise InvalidConfigValue(getMessage("invalid-port-config-error"))
+                if not self._config["endpoint"]:
+                    self._config["host"], self._config["port"] = self._splitPortAndHost(self._config["host"])
+                    hostNotValid = (self._config["host"] == "" or self._config["host"] is None)
+                    portNotValid = (_isPortValid(self._config["port"]) == False)
+                    if hostNotValid:
+                        raise InvalidConfigValue(getMessage("no-hostname-config-error"))
+                    elif portNotValid:
+                        raise InvalidConfigValue(getMessage("invalid-port-config-error"))
             elif self._config[key] == "" or self._config[key] is None:
                 raise InvalidConfigValue(getMessage("empty-value-config-error").format(key.capitalize()))
 
@@ -464,6 +466,7 @@ class ConfigurationGetter(object):
             description=getMessage("argument-description"),
             epilog=getMessage("argument-epilog"))
         self._argparser.add_argument('--no-gui', action='store_true', help=getMessage("nogui-argument"))
+        self._argparser.add_argument('-e', '--endpoint', metavar='endpoint', type=str, help="Endpoint to connect to, eg.: tcp:example.com:1234" )
         self._argparser.add_argument('-a', '--host', metavar='hostname', type=str, help=getMessage("host-argument"))
         self._argparser.add_argument('-n', '--name', metavar='username', type=str, help=getMessage("name-argument"))
         self._argparser.add_argument('-d', '--debug', action='store_true', help=getMessage("debug-argument"))

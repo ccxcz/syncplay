@@ -714,7 +714,7 @@ class SyncplayClient(object):
                 self._lastPlayerUpdate = time.time()
             self._player.setPaused(paused)
 
-    def start(self, host, port):
+    def start(self, endpoint):
         if self._running:
             return
         self._running = True
@@ -725,8 +725,7 @@ class SyncplayClient(object):
             reactor.callLater(0.1, self._playerClass.run, self, self._config['playerPath'], self._config['file'], self._config['playerArgs'], )
             self._playerClass = None
         self.protocolFactory = SyncClientFactory(self)
-        port = int(port)
-        reactor.connectTCP(host, port, self.protocolFactory)
+        endpoint.connect(self.protocolFactory)
         reactor.run()
 
     def stop(self, promptForAction=False):
